@@ -41,10 +41,9 @@ const char ** DEFAULT_MOCAP_MODEL = SKELETON_WITHOUT_TOES;
 
 const int LOCAL_PORT = 1511;
 
-typedef boost::shared_ptr < sFrameOfMocapData> _spRigBody;
-
+typedef boost::shared_ptr < RigidBody> _spRigBody;
 extern boost::circular_buffer < _spRigBody > qRigBody;
-
+boost::mutex mocap_mutex;
 ////////////////////////////////////////////////////////////////////////
 
 void processMocapData( const char** mocap_model, RigidBodyMap& published_rigid_bodies)
@@ -52,7 +51,7 @@ void processMocapData( const char** mocap_model, RigidBodyMap& published_rigid_b
 #if 1
   //UdpMulticastSocket multicast_client_socket( LOCAL_PORT, MULTICAST_IP );
 
- // ushort payload;
+  unsigned short payload;
  // int numberOfPackets = 0;
   while(ros::ok())
   {
@@ -67,15 +66,15 @@ void processMocapData( const char** mocap_model, RigidBodyMap& published_rigid_b
       // Parse mocap data
       if( true) //numBytes > 0 )
       {
-        //const char* buffer = multicast_client_socket.getBuffer();
+		  const char* buffer=0;// = multicast_client_socket.getBuffer();
         //unsigned short header = *((unsigned short*)(&buffer[0]));
 
         // Look for the beginning of a NatNet package
         if (true) //header == 7)
         {
-          //payload = *((ushort*) &buffer[2]);
-          //MoCapDataFormat format(buffer, payload);
-          //format.parse();
+          payload = *((unsigned short*) &buffer[2]);
+          MoCapDataFormat format(buffer, payload);
+          format.parse();
 
 		  //GET THE DATA AND TURN IT INTO format.model.rigidBodies[] array.
 		  //this will all happen in parse. 
@@ -84,15 +83,17 @@ void processMocapData( const char** mocap_model, RigidBodyMap& published_rigid_b
           //packetread = true;
           //numberOfPackets++;
 
-          if( format.model.numRigidBodies > 0 )
+          if(true)// format.model.numRigidBodies > 0 )
           {
-            for( int i = 0; i < format.model.numRigidBodies; i++ )
+           for( int i = 0; i < format.model.numRigidBodies; i++ )
             {
               int ID = format.model.rigidBodies[i].ID;
               RigidBodyMap::iterator item = published_rigid_bodies.find(ID);
 
               if (item != published_rigid_bodies.end())
               {
+				  //so here the data from the format is passed into the PublishedRigidBody function, and inside the data is transfered
+				  //therefore, if I can provide the information that would otherwise be in format and pass it in here, I would usurp this
                   item->second.publish(format.model.rigidBodies[i]);
               }
             }
@@ -100,8 +101,8 @@ void processMocapData( const char** mocap_model, RigidBodyMap& published_rigid_b
         }
         // else skip packet
       }
-    } while( true) //numBytes > 0 );
-
+	} while (true) //numBytes > 0 );
+		;
     // Don't try again immediately
     //if( !packetread )
     //{
@@ -112,16 +113,48 @@ void processMocapData( const char** mocap_model, RigidBodyMap& published_rigid_b
 
 }
 
+void processMocapData2(RigidBodyMap& published_rigid_bodies)
+{
+	
+	boost::mutex::scoped_lock lock(mocap_mutex);
+	_spRigBody sp;
+
+	if (qRigBody.size() > 0)
+	{
+		sp = qRigBody[0];
+		qRigBody.pop_front();
+	}
+	else
+		return;
+
+	
+	int ID = sp->ID;
+	RigidBodyMap::iterator item = published_rigid_bodies.find(ID);
+
+	if (item != published_rigid_bodies.end())
+	{
+		//so here the data from the format is passed into the PublishedRigidBody function, and inside the data is transfered
+		//therefore, if I can provide the information that would otherwise be in format and pass it in here, I would usurp this
+		item->second.publish(*sp);
+	}
+
+
+
+}
 
 
 ////////////////////////////////////////////////////////////////////////
 
-int main2( int argc, char* argv[] )
+int main( int argc, char* argv[] )
 { 
   
+ //ROS_DLL_LOCATION = C:\Users\Gregory Brill\Source\Repos\ROSIndigo\ROSIndigoDLL\Debug\
+	
+	
+
   // Initialize ROS node
   ros::init(argc, argv, "mocap_node");
-  ros::NodeHandle n("~");
+  ros::NodeHandle n; // ("~");
 
   // Get configuration from ROS parameter server  
    const char** mocap_model =  DEFAULT_MOCAP_MODEL ;
@@ -142,10 +175,16 @@ int main2( int argc, char* argv[] )
 
   RigidBodyMap published_rigid_bodies;
 
-  if (n.hasParam(RIGID_BODIES_KEY))
+
+  printf(getenv("ROS_MASTER_URI"));
+
+
+
+  if (n.hasParam("rigid_bodies"));// RIGID_BODIES_KEY))
   {
       XmlRpc::XmlRpcValue body_list;
-      n.getParam("rigid_bodies", body_list);
+      bool b=n.getParam("rigid_bodies", body_list);
+
       if (body_list.getType() == XmlRpc::XmlRpcValue::TypeStruct && body_list.size() > 0)
       {
           XmlRpc::XmlRpcValue::iterator i;
@@ -166,7 +205,8 @@ int main2( int argc, char* argv[] )
   }
 
   // Process mocap data until SIGINT
-  processMocapData(mocap_model, published_rigid_bodies);
+  //processMocapData(mocap_model, published_rigid_bodies);
+ // processMocapData2( published_rigid_bodies);
 
   return 0;
 }

@@ -33,6 +33,10 @@ SampleClient [ServerIP] [LocalIP] [OutputFilename]
 //#define MAX_PATH 255
 #include "stdafx.h"
 
+
+
+extern boost::mutex mocap_mutex;
+
 #pragma warning( disable : 4996 )
 
 void _WriteHeader(FILE* fp, sDataDescriptions* pBodyDefs);
@@ -395,12 +399,12 @@ void __cdecl DataHandler(sFrameOfMocapData* data, void* pUserData) //action is h
 		rg->pose.orientation.w = data->RigidBodies[i].qw;
 
 		rg->marker = new Marker[rg->NumberOfMarkers];
+		//TODO: populate marker data, but I don't seem to really need it for anything. 
 
 //		sFrameOfMocapData * sf = new sFrameOfMocapData;
 	//	*sf = *data;
-		_spRigBody sp(rg);
-		qRigBody.push_back(sp);
 
+		//end greg
 
 		for (int iMarker = 0; iMarker < data->RigidBodies[i].nMarkers; iMarker++)
 		{
@@ -415,6 +419,16 @@ void __cdecl DataHandler(sFrameOfMocapData* data, void* pUserData) //action is h
 				data->RigidBodies[i].Markers[iMarker][1],
 				data->RigidBodies[i].Markers[iMarker][2]);
 		}
+
+		//start greg
+
+		boost::mutex::scoped_lock lock(mocap_mutex);
+		_spRigBody sp(rg);
+		qRigBody.push_back(sp);
+
+		//end greg
+
+
 	}
 
 	// skeletons

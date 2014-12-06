@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #pragma comment(lib, "C:\\Users\\gbrill\\Source\\Repos\\ROSIndigo\\ROSIndigoDLL\\Debug\\ROSIndigoDLL.lib")
 
-int _tmain(int argc, _TCHAR* argv[])
+int _tmain3(int argc, _TCHAR* argv[])
 {
 
 

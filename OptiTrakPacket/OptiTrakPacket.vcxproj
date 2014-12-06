@@ -50,9 +50,9 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>ROS_BUILD_SHARED_LIBS;BOOST_ALL_NO_LIB=1;WIN32;_DEBUG;_CONSOLE;_LIB;GREG1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ROS_BUILD_SHARED_LIBS;BOOST_ALL_NO_LIB=1;WIN32;_DEBUG;_CONSOLE;_LIB;GREG1;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ROS_INCLUDES);C:\include\indigo;$(ROS_INCLUDES)\message_traits;$(ROS_INCLUDES)\xmlrpc;$(ROS_INCLUDES)\roslib;$(ROS_INCLUDES)\tinyxml;$(ROS_INCLUDES)\legacy;C:\Projects\NatNetSDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ROS_INCLUDES);C:\include\indigo;$(ROS_INCLUDES)\message_traits;$(ROS_INCLUDES)\xmlrpc;$(ROS_INCLUDES)\roslib;$(ROS_INCLUDES)\tinyxml;$(ROS_INCLUDES)\legacy;C:\include\NatNetSDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BrowseInformation>true</BrowseInformation>
       <AdditionalOptions>/Zm112 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -60,7 +60,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>libboost_signals-vc-mt-gd-1_53.lib;libboost_thread-vc-mt-gd-1_53.lib;libboost_system-vc-mt-gd-1_53.lib;NatNetLibStatic.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\lib\indigo;c:\lib\boost_153;C:\Projects\NatNetSDK\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\lib\indigo;c:\lib\boost_153;C:\include\NatNetSDK\lib</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -112,6 +112,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Xsd Include="mocap.xsd">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </Xsd>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
