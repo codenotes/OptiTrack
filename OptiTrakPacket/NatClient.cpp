@@ -64,7 +64,7 @@ boost::circular_buffer < _spRigBody > qRigBody(5);
 
 
 
-int go(int argc, _TCHAR* argv[])
+int natnet_go(int argc, _TCHAR* argv[])
 {
 	int iResult;
 	int iConnectionType = ConnectionType_Multicast;
@@ -104,7 +104,7 @@ int go(int argc, _TCHAR* argv[])
 		printf("Client initialized and ready.\n");
 	}
 
-
+	return 0;
 	// send/receive test request
 	printf("[SampleClient] Sending Test Request\n");
 	void* response;
@@ -329,9 +329,10 @@ void __cdecl DataHandler(sFrameOfMocapData* data, void* pUserData) //action is h
 
 	int i = 0;
 
-	printf("FrameID : %d\n", data->iFrame);
-	printf("Timestamp :  %3.2lf\n", data->fTimestamp);
-	printf("Latency :  %3.2lf\n", data->fLatency);
+	
+	ROS_INFO("interop","FrameID : %d\n", data->iFrame);
+	//printf("Timestamp :  %3.2lf\n", data->fTimestamp);
+	//printf("Latency :  %3.2lf\n", data->fLatency);
 
 
 	// FrameOfMocapData params
@@ -349,39 +350,40 @@ void __cdecl DataHandler(sFrameOfMocapData* data, void* pUserData) //action is h
 	// decode to friendly string
 	char szTimecode[128] = "";
 	pClient->TimecodeStringify(data->Timecode, data->TimecodeSubframe, szTimecode, 128);
-	printf("Timecode : %s\n", szTimecode);
+//	printf("Timecode : %s\n", szTimecode);
 
 	// Other Markers
-	printf("Other Markers [Count=%d]\n", data->nOtherMarkers);
-	for (i = 0; i < data->nOtherMarkers; i++)
-	{
-		printf("Other Marker %d : %3.2f\t%3.2f\t%3.2f\n",
-			i,
-			data->OtherMarkers[i][0],
-			data->OtherMarkers[i][1],
-			data->OtherMarkers[i][2]);
-	}
+//	printf("Other Markers [Count=%d]\n", data->nOtherMarkers);
+
+//	for (i = 0; i < data->nOtherMarkers; i++)
+//	{
+//		printf("Other Marker %d : %3.2f\t%3.2f\t%3.2f\n",
+//			i,
+//			data->OtherMarkers[i][0],
+//			data->OtherMarkers[i][1],
+//			data->OtherMarkers[i][2]);
+//	}
 
 	// Rigid Bodies
-	printf("Rigid Bodies [Count=%d]\n", data->nRigidBodies);
+//	printf("Rigid Bodies [Count=%d]\n", data->nRigidBodies);
 	for (i = 0; i < data->nRigidBodies; i++)
 	{
 		// params
 		// 0x01 : bool, rigid body was successfully tracked in this frame
 		bool bTrackingValid = data->RigidBodies[i].params & 0x01;
 
-		printf("Rigid Body [ID=%d  Error=%3.2f  Valid=%d]\n", data->RigidBodies[i].ID, data->RigidBodies[i].MeanError, bTrackingValid);
-		printf("\tx\ty\tz\tqx\tqy\tqz\tqw\n");
-		printf("\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%3.2f\n",
-			data->RigidBodies[i].x,
-			data->RigidBodies[i].y,
-			data->RigidBodies[i].z,
-			data->RigidBodies[i].qx,
-			data->RigidBodies[i].qy,
-			data->RigidBodies[i].qz,
-			data->RigidBodies[i].qw);
+		//printf("Rigid Body [ID=%d  Error=%3.2f  Valid=%d]\n", data->RigidBodies[i].ID, data->RigidBodies[i].MeanError, bTrackingValid);
+		//printf("\tx\ty\tz\tqx\tqy\tqz\tqw\n");
+		//printf("\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%3.2f\n",
+		//	data->RigidBodies[i].x,
+		//	data->RigidBodies[i].y,
+		//	data->RigidBodies[i].z,
+		//	data->RigidBodies[i].qx,
+		//	data->RigidBodies[i].qy,
+		//	data->RigidBodies[i].qz,
+		//	data->RigidBodies[i].qw);
 
-		printf("\tRigid body markers [Count=%d]\n", data->RigidBodies[i].nMarkers);
+		//printf("\tRigid body markers [Count=%d]\n", data->RigidBodies[i].nMarkers);
 
 
 		//greg new
@@ -408,16 +410,16 @@ void __cdecl DataHandler(sFrameOfMocapData* data, void* pUserData) //action is h
 
 		for (int iMarker = 0; iMarker < data->RigidBodies[i].nMarkers; iMarker++)
 		{
-			printf("\t\t");
-			if (data->RigidBodies[i].MarkerIDs)
-				printf("MarkerID:%d", data->RigidBodies[i].MarkerIDs[iMarker]);
-			if (data->RigidBodies[i].MarkerSizes)
-				printf("\tMarkerSize:%3.2f", data->RigidBodies[i].MarkerSizes[iMarker]);
-			if (data->RigidBodies[i].Markers)
-				printf("\tMarkerPos:%3.2f,%3.2f,%3.2f\n",
-				data->RigidBodies[i].Markers[iMarker][0],
-				data->RigidBodies[i].Markers[iMarker][1],
-				data->RigidBodies[i].Markers[iMarker][2]);
+			//printf("\t\t");
+			//if (data->RigidBodies[i].MarkerIDs)
+			//	printf("MarkerID:%d", data->RigidBodies[i].MarkerIDs[iMarker]);
+			//if (data->RigidBodies[i].MarkerSizes)
+			//	printf("\tMarkerSize:%3.2f", data->RigidBodies[i].MarkerSizes[iMarker]);
+			//if (data->RigidBodies[i].Markers)
+			//	printf("\tMarkerPos:%3.2f,%3.2f,%3.2f\n",
+			//	data->RigidBodies[i].Markers[iMarker][0],
+			//	data->RigidBodies[i].Markers[iMarker][1],
+			//	data->RigidBodies[i].Markers[iMarker][2]);
 		}
 
 		//start greg
@@ -428,52 +430,52 @@ void __cdecl DataHandler(sFrameOfMocapData* data, void* pUserData) //action is h
 
 		//end greg
 
-
+		 
 	}
 
 	// skeletons
-	printf("Skeletons [Count=%d]\n", data->nSkeletons);
-	for (i = 0; i < data->nSkeletons; i++)
-	{
-		sSkeletonData skData = data->Skeletons[i];
-		printf("Skeleton [ID=%d  Bone count=%d]\n", skData.skeletonID, skData.nRigidBodies);
-		for (int j = 0; j< skData.nRigidBodies; j++)
-		{
-			sRigidBodyData rbData = skData.RigidBodyData[j];
-			printf("Bone %d\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%3.2f\n",
-				rbData.ID, rbData.x, rbData.y, rbData.z, rbData.qx, rbData.qy, rbData.qz, rbData.qw);
+	//printf("Skeletons [Count=%d]\n", data->nSkeletons);
+	//for (i = 0; i < data->nSkeletons; i++)
+	//{
+	//	sSkeletonData skData = data->Skeletons[i];
+	//	printf("Skeleton [ID=%d  Bone count=%d]\n", skData.skeletonID, skData.nRigidBodies);
+	//	for (int j = 0; j< skData.nRigidBodies; j++)
+	//	{
+	//		sRigidBodyData rbData = skData.RigidBodyData[j];
+	//		printf("Bone %d\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%3.2f\n",
+	//			rbData.ID, rbData.x, rbData.y, rbData.z, rbData.qx, rbData.qy, rbData.qz, rbData.qw);
 
-			printf("\tRigid body markers [Count=%d]\n", rbData.nMarkers);
-			for (int iMarker = 0; iMarker < rbData.nMarkers; iMarker++)
-			{
-				printf("\t\t");
-				if (rbData.MarkerIDs)
-					printf("MarkerID:%d", rbData.MarkerIDs[iMarker]);
-				if (rbData.MarkerSizes)
-					printf("\tMarkerSize:%3.2f", rbData.MarkerSizes[iMarker]);
-				if (rbData.Markers)
-					printf("\tMarkerPos:%3.2f,%3.2f,%3.2f\n",
-					data->RigidBodies[i].Markers[iMarker][0],
-					data->RigidBodies[i].Markers[iMarker][1],
-					data->RigidBodies[i].Markers[iMarker][2]);
-			}
-		}
-	}
+	//		printf("\tRigid body markers [Count=%d]\n", rbData.nMarkers);
+	//		for (int iMarker = 0; iMarker < rbData.nMarkers; iMarker++)
+	//		{
+	//			printf("\t\t");
+	//			if (rbData.MarkerIDs)
+	//				printf("MarkerID:%d", rbData.MarkerIDs[iMarker]);
+	//			if (rbData.MarkerSizes)
+	//				printf("\tMarkerSize:%3.2f", rbData.MarkerSizes[iMarker]);
+	//			if (rbData.Markers)
+	//				printf("\tMarkerPos:%3.2f,%3.2f,%3.2f\n",
+	//				data->RigidBodies[i].Markers[iMarker][0],
+	//				data->RigidBodies[i].Markers[iMarker][1],
+	//				data->RigidBodies[i].Markers[iMarker][2]);
+	//		}
+	//	}
+	//}
 
 	// labeled markers
 	bool bOccluded;     // marker was not visible (occluded) in this frame
 	bool bPCSolved;     // reported position provided by point cloud solve
 	bool bModelSolved;  // reported position provided by model solve
-	printf("Labeled Markers [Count=%d]\n", data->nLabeledMarkers);
-	for (i = 0; i < data->nLabeledMarkers; i++)
-	{
-		bOccluded = data->LabeledMarkers[i].params & 0x01;
-		bPCSolved = data->LabeledMarkers[i].params & 0x02;
-		bModelSolved = data->LabeledMarkers[i].params & 0x04;
-		sMarker marker = data->LabeledMarkers[i];
-		printf("Labeled Marker [ID=%d, Occluded=%d, PCSolved=%d, ModelSolved=%d] [size=%3.2f] [pos=%3.2f,%3.2f,%3.2f]\n",
-			marker.ID, bOccluded, bPCSolved, bModelSolved, marker.size, marker.x, marker.y, marker.z);
-	}
+	//printf("Labeled Markers [Count=%d]\n", data->nLabeledMarkers);
+	//for (i = 0; i < data->nLabeledMarkers; i++)
+	//{
+	//	bOccluded = data->LabeledMarkers[i].params & 0x01;
+	//	bPCSolved = data->LabeledMarkers[i].params & 0x02;
+	//	bModelSolved = data->LabeledMarkers[i].params & 0x04;
+	//	sMarker marker = data->LabeledMarkers[i];
+	//	printf("Labeled Marker [ID=%d, Occluded=%d, PCSolved=%d, ModelSolved=%d] [size=%3.2f] [pos=%3.2f,%3.2f,%3.2f]\n",
+	//		marker.ID, bOccluded, bPCSolved, bModelSolved, marker.size, marker.x, marker.y, marker.z);
+	//}
 
 }
 

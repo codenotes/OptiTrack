@@ -46,6 +46,8 @@ extern boost::circular_buffer < _spRigBody > qRigBody;
 boost::mutex mocap_mutex;
 ////////////////////////////////////////////////////////////////////////
 
+int natnet_go(int argc, _TCHAR* argv[]);
+
 void processMocapData( const char** mocap_model, RigidBodyMap& published_rigid_bodies)
 {
 #if 1
@@ -115,29 +117,55 @@ void processMocapData( const char** mocap_model, RigidBodyMap& published_rigid_b
 
 void processMocapData2(RigidBodyMap& published_rigid_bodies)
 {
-	
-	boost::mutex::scoped_lock lock(mocap_mutex);
-	_spRigBody sp;
 
-	if (qRigBody.size() > 0)
-	{
-		sp = qRigBody[0];
-		qRigBody.pop_front();
-	}
-	else
-		return;
+
+	ros::Rate loop_rate(15);
+//	ros::Rate loop_rate_idle(1);
 
 	
-	int ID = sp->ID;
-	RigidBodyMap::iterator item = published_rigid_bodies.find(ID);
-
-	if (item != published_rigid_bodies.end())
+	while (ros::ok())
 	{
-		//so here the data from the format is passed into the PublishedRigidBody function, and inside the data is transfered
-		//therefore, if I can provide the information that would otherwise be in format and pass it in here, I would usurp this
-		item->second.publish(*sp);
+
+
+	//	boost::mutex::scoped_lock lock(mocap_mutex);
+		_spRigBody sp;
+
+		//ROS_INFO_NAMED("interop", "sdf");
+
+
+		if (qRigBody.size() > 0)
+		{
+			sp = qRigBody[0];
+			qRigBody.pop_front();
+			//printf("***********x is %f\n", sp->pose.position.x);
+		}
+		else
+			continue;
+
+
+		int ID = sp->ID;
+
+		ROS_INFO_NAMED("interop", "looking for ID %d", ID);
+		RigidBodyMap::iterator item = published_rigid_bodies.find(ID);
+
+		if (item != published_rigid_bodies.end())
+		{
+			
+			
+
+			//so here the data from the format is passed into the PublishedRigidBody function, and inside the data is transfered
+			//therefore, if I can provide the information that would otherwise be in format and pass it in here, I would usurp this
+			item->second.publish(*sp);
+		}
+
+
+
+		ros::spinOnce();
+		loop_rate.sleep();
 	}
 
+
+	
 
 
 }
@@ -202,11 +230,13 @@ int main( int argc, char* argv[] )
               }
           }
       }
+	  natnet_go(argc, argv);
+	  processMocapData2(published_rigid_bodies);
+
   }
 
   // Process mocap data until SIGINT
   //processMocapData(mocap_model, published_rigid_bodies);
- // processMocapData2( published_rigid_bodies);
 
   return 0;
 }
