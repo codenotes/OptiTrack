@@ -119,7 +119,7 @@ void processMocapData2(RigidBodyMap& published_rigid_bodies)
 {
 
 
-	ros::Rate loop_rate(15);
+	ros::Rate loop_rate(75); //need a number high enough that eats into the buffer a little.
 //	ros::Rate loop_rate_idle(1);
 
 	
@@ -132,33 +132,44 @@ void processMocapData2(RigidBodyMap& published_rigid_bodies)
 
 		//ROS_INFO_NAMED("interop", "sdf");
 
-
 		if (qRigBody.size() > 0)
 		{
+
+			boost::circular_buffer < _spRigBody >::iterator it;
+
+			for (it= qRigBody.begin(); it != qRigBody.end(); ++it)
+			{
+			//	ROS_INFO_NAMED("interop", "dump ID %d", it->get()->ID);
+			}
+
 			sp = qRigBody[0];
+
+			//ROS_INFO_NAMED("interop", "popped ID %d, size %d", sp->ID, qRigBody.size());
+			int ID = sp->ID;
+
+			RigidBodyMap::iterator item = published_rigid_bodies.find(ID);
+
+			if (item != published_rigid_bodies.end())
+			{
+
+				ROS_INFO_NAMED("interop", "Found and publishing ID %d, qsize is %d", ID, qRigBody.size());
+
+				//so here the data from the format is passed into the PublishedRigidBody function, and inside the data is transfered
+				//therefore, if I can provide the information that would otherwise be in format and pass it in here, I would usurp this
+				item->second.publish(*sp);
+			}
+
 			qRigBody.pop_front();
+
+
+
 			//printf("***********x is %f\n", sp->pose.position.x);
 		}
 		else
 			continue;
 
 
-		int ID = sp->ID;
-
-		ROS_INFO_NAMED("interop", "looking for ID %d", ID);
-		RigidBodyMap::iterator item = published_rigid_bodies.find(ID);
-
-		if (item != published_rigid_bodies.end())
-		{
-			
-			
-
-			//so here the data from the format is passed into the PublishedRigidBody function, and inside the data is transfered
-			//therefore, if I can provide the information that would otherwise be in format and pass it in here, I would usurp this
-			item->second.publish(*sp);
-		}
-
-
+	
 
 		ros::spinOnce();
 		loop_rate.sleep();

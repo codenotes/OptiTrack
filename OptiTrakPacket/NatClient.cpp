@@ -59,7 +59,7 @@ char szServerIPAddress[128] = "";
 
 //typedef boost::shared_ptr < sFrameOfMocapData> _spRigBody;
 typedef boost::shared_ptr < RigidBody> _spRigBody;
-boost::circular_buffer < _spRigBody > qRigBody(5);
+boost::circular_buffer < _spRigBody > qRigBody(15);
 
 
 
@@ -366,6 +366,9 @@ void __cdecl DataHandler(sFrameOfMocapData* data, void* pUserData) //action is h
 
 	// Rigid Bodies
 //	printf("Rigid Bodies [Count=%d]\n", data->nRigidBodies);
+
+	boost::mutex::scoped_lock lock(mocap_mutex);
+
 	for (i = 0; i < data->nRigidBodies; i++)
 	{
 		// params
@@ -391,22 +394,27 @@ void __cdecl DataHandler(sFrameOfMocapData* data, void* pUserData) //action is h
 		RigidBody * rg;
 		rg =  new RigidBody();
 		rg->ID = data->RigidBodies[i].ID;
+
+
+		//ROS_INFO_NAMED("interop","got ID %d", rg->ID);
+
 		rg->NumberOfMarkers = data->RigidBodies[i].nMarkers;
 		rg->pose.position.x = data->RigidBodies[i].x;
-		rg->pose.position.y = data->RigidBodies[i].y;
+		rg->pose.position.y = data->RigidBodies[i].y;  //these are transposed in Motiv
 		rg->pose.position.z = data->RigidBodies[i].z;
 		rg->pose.orientation.x = data->RigidBodies[i].qx;
-		rg->pose.orientation.y = data->RigidBodies[i].qy;
+		rg->pose.orientation.y = data->RigidBodies[i].qy; //TODO?:  Transpose here as well?
 		rg->pose.orientation.z = data->RigidBodies[i].qz;
 		rg->pose.orientation.w = data->RigidBodies[i].qw;
 
-		rg->marker = new Marker[rg->NumberOfMarkers];
+	//	rg->marker = new Marker[rg->NumberOfMarkers];
 		//TODO: populate marker data, but I don't seem to really need it for anything. 
 
 //		sFrameOfMocapData * sf = new sFrameOfMocapData;
 	//	*sf = *data;
 
 		//end greg
+		
 
 		for (int iMarker = 0; iMarker < data->RigidBodies[i].nMarkers; iMarker++)
 		{
@@ -424,9 +432,14 @@ void __cdecl DataHandler(sFrameOfMocapData* data, void* pUserData) //action is h
 
 		//start greg
 
-		boost::mutex::scoped_lock lock(mocap_mutex);
+		
 		_spRigBody sp(rg);
+		
+		ROS_INFO_NAMED("interop", "pushing ID %d y:%f z:%f", sp->ID, sp->pose.position.y, sp->pose.position.z);
+		
+		//if (sp->ID==4)
 		qRigBody.push_back(sp);
+
 
 		//end greg
 
@@ -482,7 +495,7 @@ void __cdecl DataHandler(sFrameOfMocapData* data, void* pUserData) //action is h
 // MessageHandler receives NatNet error/debug messages
 void __cdecl MessageHandler(int msgType, char* msg)
 {
-	printf("\n%s\n", msg);
+	//printf("\n%s\n", msg);
 }
 
 /* File writing routines */
