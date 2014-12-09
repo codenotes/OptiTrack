@@ -104,7 +104,7 @@ int natnet_go(int argc, _TCHAR* argv[])
 		printf("Client initialized and ready.\n");
 	}
 
-	return 0;
+	//return 0;
 	// send/receive test request
 	printf("[SampleClient] Sending Test Request\n");
 	void* response;
@@ -171,91 +171,7 @@ int natnet_go(int argc, _TCHAR* argv[])
 		}
 	}
 
-#if 0	
-	int c;
-	bool bExit = false;
-	while (c = getchar())
-	{
-		switch (c)
-		{
-		case 'q':
-			bExit = true;
-			break;
-		case 'r':
-			resetClient();
-			break;
-		case 'p':
-			sServerDescription ServerDescription;
-			memset(&ServerDescription, 0, sizeof(ServerDescription));
-			theClient->GetServerDescription(&ServerDescription);
-			if (!ServerDescription.HostPresent)
-			{
-				printf("Unable to connect to server. Host not present. Exiting.");
-				return 1;
-			}
-			break;
-		case 'f':
-		{
-			sFrameOfMocapData* pData = theClient->GetLastFrameOfData();
-			printf("Most Recent Frame: %d", pData->iFrame);
-		}
-			break;
-		case 'm':	                        // change to multicast
-			iResult = CreateClient(ConnectionType_Multicast);
-			if (iResult == ErrorCode_OK)
-				printf("Client connection type changed to Multicast.\n\n");
-			else
-				printf("Error changing client connection type to Multicast.\n\n");
-			break;
-		case 'u':	                        // change to unicast
-			iResult = CreateClient(ConnectionType_Unicast);
-			if (iResult == ErrorCode_OK)
-				printf("Client connection type changed to Unicast.\n\n");
-			else
-				printf("Error changing client connection type to Unicast.\n\n");
-			break;
 
-
-		default:
-			break;
-		}
-		if (bExit)
-			break;
-	}
-
-	// Done - clean up.
-	theClient->Uninitialize();
-	_WriteFooter(fp);
-	fclose(fp);
-
-	return ErrorCode_OK;
-
-
-	// Create data file for writing received stream into
-	char szFile[MAX_PATH];
-	char szFolder[MAX_PATH];
-	GetCurrentDirectory(MAX_PATH, szFolder);
-	if (argc > 3)
-		sprintf(szFile, "%s\\%s", szFolder, argv[3]);
-	else
-		sprintf(szFile, "%s\\Client-output.pts", szFolder);
-	fp = fopen(szFile, "w");
-	if (!fp)
-	{
-		printf("error opening output file %s.  Exiting.", szFile);
-		exit(1);
-	}
-	if (pDataDefs)
-		_WriteHeader(fp, pDataDefs);
-
-	// Ready to receive marker stream!
-	printf("\nClient is connected to server and listening for data...\n");
-	
-	
-	
-	
-	
-#endif
 }
 
 // Establish a NatNet Client connection
@@ -435,7 +351,7 @@ void __cdecl DataHandler(sFrameOfMocapData* data, void* pUserData) //action is h
 		
 		_spRigBody sp(rg);
 		
-		ROS_INFO_NAMED("interop", "pushing ID %d y:%f z:%f", sp->ID, sp->pose.position.y, sp->pose.position.z);
+	//	ROS_INFO_NAMED("interop", "pushing ID %d y:%f z:%f", sp->ID, sp->pose.position.y, sp->pose.position.z);
 		
 		//if (sp->ID==4)
 		qRigBody.push_back(sp);

@@ -118,6 +118,7 @@ void processMocapData( const char** mocap_model, RigidBodyMap& published_rigid_b
 void processMocapData2(RigidBodyMap& published_rigid_bodies)
 {
 
+	ROS_INFO_NAMED("interop", "Publishing...");
 
 	ros::Rate loop_rate(75); //need a number high enough that eats into the buffer a little.
 //	ros::Rate loop_rate_idle(1);
@@ -137,10 +138,10 @@ void processMocapData2(RigidBodyMap& published_rigid_bodies)
 
 			boost::circular_buffer < _spRigBody >::iterator it;
 
-			for (it= qRigBody.begin(); it != qRigBody.end(); ++it)
-			{
+			//for (it= qRigBody.begin(); it != qRigBody.end(); ++it)
+		//	{
 			//	ROS_INFO_NAMED("interop", "dump ID %d", it->get()->ID);
-			}
+			//}
 
 			sp = qRigBody[0];
 
@@ -152,7 +153,7 @@ void processMocapData2(RigidBodyMap& published_rigid_bodies)
 			if (item != published_rigid_bodies.end())
 			{
 
-				ROS_INFO_NAMED("interop", "Found and publishing ID %d, qsize is %d", ID, qRigBody.size());
+				ROS_DEBUG_NAMED("interop", "Found and publishing ID %d, qsize is %d", ID, qRigBody.size());
 
 				//so here the data from the format is passed into the PublishedRigidBody function, and inside the data is transfered
 				//therefore, if I can provide the information that would otherwise be in format and pass it in here, I would usurp this
